@@ -10,7 +10,7 @@ Help the user configure BurnBoard. The entire setup is just one step: paste the 
 ## Steps
 
 1. Ask the user for their **API Key**.
-   - Tell them: "Paste your BurnBoard API key (starts with `bb_`). You can create one at https://burnboard-web.vercel.app/settings"
+   - Tell them: "Paste your BurnBoard API key (starts with `bb_`). You can create one at https://burnboard.io/settings"
    - Validate the key starts with `bb_` and is 35 characters long.
    - If invalid, tell them the format and ask again.
 
@@ -37,7 +37,7 @@ Help the user configure BurnBoard. The entire setup is just one step: paste the 
 
 5. **Connection test**: Run the following command to verify the key works:
    ```bash
-   curl -s -H "Authorization: Bearer <their API key>" https://burnboard-web.vercel.app/api/ping
+   curl -s -H "Authorization: Bearer <their API key>" https://burnboard.io/api/ping
    ```
    - If response contains `"ok": true`, show: "Connected as **{user}**! BurnBoard will now track your token usage automatically."
    - If it fails, show: "Could not connect. Please check your API key and try again."
@@ -46,7 +46,7 @@ Help the user configure BurnBoard. The entire setup is just one step: paste the 
    ```
    Setup complete! Your token usage will be tracked after each Claude Code session.
 
-   View your stats: https://burnboard-web.vercel.app/dashboard
+   View your stats: https://burnboard.io/dashboard
 
    ⭐ If you find BurnBoard useful, please star the repo to support the project:
    https://github.com/behappybill/burnboard-plugin

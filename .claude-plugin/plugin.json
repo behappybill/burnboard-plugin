@@ -5,7 +5,7 @@
   "author": {
     "name": "BurnBoard"
   },
-  "homepage": "https://burnboard-web.vercel.app",
+  "homepage": "https://burnboard.io",
   "repository": "https://github.com/behappybill/burnboard-plugin",
   "license": "MIT",
   "keywords": ["token-tracking", "usage", "leaderboard", "gamification"]
