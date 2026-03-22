@@ -1,0 +1,24 @@
+{
+  "name": "burnboard-marketplace",
+  "owner": {
+    "name": "BurnBoard"
+  },
+  "metadata": {
+    "description": "Official BurnBoard plugin for Claude Code — track token usage and compete on the global leaderboard"
+  },
+  "plugins": [
+    {
+      "name": "burnboard",
+      "source": "./",
+      "description": "Track Claude Code token usage and compete on the global leaderboard",
+      "version": "0.1.0",
+      "author": {
+        "name": "BurnBoard"
+      },
+      "homepage": "https://burnboard-web.vercel.app",
+      "license": "MIT",
+      "keywords": ["token-tracking", "usage", "leaderboard", "gamification"],
+      "category": "analytics"
+    }
+  ]
+}

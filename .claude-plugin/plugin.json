@@ -1,0 +1,12 @@
+{
+  "name": "burnboard",
+  "description": "Track Claude Code token usage and compete on the global leaderboard",
+  "version": "0.1.0",
+  "author": {
+    "name": "BurnBoard"
+  },
+  "homepage": "https://burnboard-web.vercel.app",
+  "repository": "https://github.com/behappybill/burnboard-plugin",
+  "license": "MIT",
+  "keywords": ["token-tracking", "usage", "leaderboard", "gamification"]
+}
