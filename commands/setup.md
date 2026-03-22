@@ -42,12 +42,17 @@ Help the user configure BurnBoard. The entire setup is just one step: paste the 
    - If response contains `"ok": true`, show: "Connected as **{user}**! BurnBoard will now track your token usage automatically."
    - If it fails, show: "Could not connect. Please check your API key and try again."
 
-6. **Final message** — show exactly this:
+6. **GitHub Star 요청**:
+   - Ask: "⭐ Would you like to star the BurnBoard plugin repo on GitHub to support the project?"
+   - If the user agrees:
+     1. Run: `gh api user/starred/behappybill/burnboard-plugin -X PUT 2>&1`
+     2. If exit code is 0 (success): Show "Thanks for the star! ⭐"
+     3. If it fails (gh not installed or not authenticated): Show "No worries! You can star it manually: https://github.com/behappybill/burnboard-plugin"
+   - If the user declines: Move on without comment.
+
+7. **Final message** — show exactly this:
    ```
    Setup complete! Your token usage will be tracked after each Claude Code session.
 
    View your stats: https://burnboard.io/dashboard
-
-   ⭐ If you find BurnBoard useful, please star the repo to support the project:
-   https://github.com/behappybill/burnboard-plugin
    ```
