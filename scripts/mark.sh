@@ -6,4 +6,6 @@ PENDING_DIR="${CLAUDE_PLUGIN_DATA}/pending"
 mkdir -p "$PENDING_DIR"
 [ -n "$SESSION_ID" ] && [ -n "$TRANSCRIPT" ] && \
   echo "$TRANSCRIPT" > "$PENDING_DIR/$SESSION_ID"
+# Flush pending sessions in the background (fire-and-forget)
+node "${CLAUDE_PLUGIN_ROOT}/scripts/flush.mjs" >/dev/null 2>&1 &
 exit 0
