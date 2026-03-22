@@ -2,7 +2,7 @@
 
 > Track your Claude Code token usage and compete on the global leaderboard.
 
-**[burnboard-web.vercel.app](https://burnboard-web.vercel.app)**
+**[burnboard.io](https://burnboard.io)**
 
 <!-- TODO: 데모 GIF로 교체 — 설치 → setup → 대시보드 확인 흐름 -->
 <!-- ![BurnBoard Demo](docs/demo.gif) -->
@@ -23,7 +23,7 @@ Run in Claude Code:
 /burnboard:setup
 ```
 
-You'll need an API key — create one at [burnboard-web.vercel.app/settings](https://burnboard-web.vercel.app/settings) (GitHub login required).
+You'll need an API key — create one at [burnboard.io/settings](https://burnboard.io/settings) (GitHub login required).
 
 That's it. Your token usage is now tracked automatically.
 

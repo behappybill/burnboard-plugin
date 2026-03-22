@@ -15,7 +15,7 @@
       "author": {
         "name": "BurnBoard"
       },
-      "homepage": "https://burnboard-web.vercel.app",
+      "homepage": "https://burnboard.io",
       "license": "MIT",
       "keywords": ["token-tracking", "usage", "leaderboard", "gamification"],
       "category": "analytics"

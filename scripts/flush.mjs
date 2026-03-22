@@ -6,7 +6,7 @@ import { join as join2 } from "path";
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
-var DEFAULT_ENDPOINT = "https://burnboard-web.vercel.app/api";
+var DEFAULT_ENDPOINT = "https://burnboard.io/api";
 function dataDir(overrideDir) {
   if (overrideDir) return overrideDir;
   return process.env.CLAUDE_PLUGIN_DATA ?? join(homedir(), ".burnboard");
