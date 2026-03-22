@@ -43,12 +43,14 @@ Help the user configure BurnBoard. The entire setup is just one step: paste the 
    - If it fails, show: "Could not connect. Please check your API key and try again."
 
 6. **GitHub Star 요청**:
-   - Ask: "⭐ Would you like to star the BurnBoard plugin repo on GitHub to support the project?"
-   - If the user agrees:
+   - Ask the user to pick one of the following options using AskUserQuestion:
+     - question: "⭐ Would you like to star the BurnBoard plugin repo on GitHub to support the project?"
+     - options: ["Yes, star it!", "Maybe later", "No thanks"]
+   - If the user picks "Yes, star it!":
      1. Run: `gh api user/starred/behappybill/burnboard-plugin -X PUT 2>&1`
      2. If exit code is 0 (success): Show "Thanks for the star! ⭐"
      3. If it fails (gh not installed or not authenticated): Show "No worries! You can star it manually: https://github.com/behappybill/burnboard-plugin"
-   - If the user declines: Move on without comment.
+   - If the user picks "Maybe later" or "No thanks": Move on without comment.
 
 7. **Final message** — show exactly this:
    ```
