@@ -9,23 +9,37 @@
 
 ## Quick Start
 
-### 1. Install
+Claude Code 내에서 아래 3단계를 순서대로 실행하세요.
+
+### 1. 마켓플레이스 등록
+
+BurnBoard 플러그인 저장소를 마켓플레이스로 등록합니다.
 
 ```bash
-claude plugin add https://github.com/behappybill/burnboard-plugin
+claude marketplace add https://github.com/behappybill/burnboard-plugin
 ```
 
-### 2. Setup
+### 2. 플러그인 설치
 
-Run in Claude Code:
+등록된 마켓플레이스에서 BurnBoard 플러그인을 설치합니다.
+
+```bash
+claude plugin install burnboard
+```
+
+설치 과정에서 hook 권한 승인을 요청할 수 있습니다. 허용해 주세요.
+
+### 3. Setup
+
+Claude Code를 실행한 뒤, 아래 슬래시 커맨드를 입력합니다.
 
 ```
 /burnboard:setup
 ```
 
-You'll need an API key — create one at [burnboard.io/settings](https://burnboard.io/settings) (GitHub login required).
+API 키를 입력하라는 안내가 나타납니다. [burnboard.io/settings](https://burnboard.io/settings)에서 GitHub 로그인 후 API 키를 발급받아 입력하세요.
 
-That's it. Your token usage is now tracked automatically.
+설정이 완료되면 토큰 사용량이 자동으로 추적됩니다.
 
 ## Features
 
