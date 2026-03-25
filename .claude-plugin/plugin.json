@@ -8,5 +8,6 @@
   "homepage": "https://burnboard.io",
   "repository": "https://github.com/behappybill/burnboard-plugin",
   "license": "MIT",
-  "keywords": ["token-tracking", "usage", "leaderboard", "gamification"]
+  "keywords": ["token-tracking", "usage", "leaderboard", "gamification"],
+  "statusline": "scripts/statusline.mjs"
 }
