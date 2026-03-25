@@ -1,9 +1,9 @@
 // src/flush-entry.ts
-import { readdirSync, readFileSync as readFileSync3, unlinkSync, statSync } from "fs";
+import { readdirSync, readFileSync as readFileSync3, unlinkSync, statSync, writeFileSync, existsSync } from "fs";
 import { join as join2 } from "path";
 
 // src/config.ts
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { readFileSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 var DEFAULT_ENDPOINT = "https://burnboard.io/api";
@@ -75,7 +75,7 @@ async function reportUsage(config, payload) {
     },
     body: JSON.stringify(payload)
   });
-  return { ok: res.ok || res.status === 409, status: res.status };
+  return { ok: res.ok, status: res.status };
 }
 
 // src/flush-entry.ts
@@ -86,62 +86,87 @@ async function flush() {
   }
   const dataDir2 = process.env.CLAUDE_PLUGIN_DATA ?? join2(process.env.HOME ?? "", ".burnboard");
   const pendingDir = join2(dataDir2, "pending");
-  let files;
+  const lockPath = join2(dataDir2, "flush.lock");
+
+  // Prevent concurrent flush processes
+  if (existsSync(lockPath)) {
+    try {
+      const lockAge = Date.now() - statSync(lockPath).mtimeMs;
+      if (lockAge < 60_000) return; // Active lock (<60s): another flush is running
+      // Stale lock (>=60s): previous process likely crashed, proceed
+    } catch {
+      // stat failed, proceed anyway
+    }
+  }
+
+  // Acquire lock
   try {
-    files = readdirSync(pendingDir);
+    writeFileSync(lockPath, String(process.pid));
   } catch {
     return;
   }
-  if (files.length === 0) return;
-  const sevenDaysAgo = Date.now() - 7 * 864e5;
-  const validFiles = [];
-  for (const file of files) {
-    const filePath = join2(pendingDir, file);
-    const stat = statSync(filePath);
-    if (stat.mtimeMs < sevenDaysAgo) {
-      unlinkSync(filePath);
-    } else {
-      validFiles.push(file);
-    }
-  }
-  if (validFiles.length === 0) return;
-  const sessions = [];
-  for (const file of validFiles.slice(0, 10)) {
-    const filePath = join2(pendingDir, file);
-    const transcriptPath = readFileSync3(filePath, "utf-8").trim();
-    try {
-      const summary = parseTranscript(transcriptPath);
-      sessions.push({ sessionId: file, summary, file });
-    } catch {
-    }
-  }
-  if (sessions.length === 0) return;
-  const payload = {
-    sessions: sessions.map((s) => ({
-      sessionId: s.sessionId,
-      summary: {
-        inputTokens: s.summary.inputTokens,
-        outputTokens: s.summary.outputTokens,
-        totalTokens: s.summary.totalTokens,
-        models: s.summary.models,
-        turnCount: s.summary.turnCount,
-        duration: s.summary.duration
-      },
-      startedAt: s.summary.startedAt,
-      endedAt: s.summary.endedAt
-    }))
-  };
+
   try {
-    const result = await reportUsage(config, payload);
-    if (result.ok) {
-      for (const s of sessions) {
-        try {
-          unlinkSync(join2(pendingDir, s.file));
-        } catch {
-        }
+    let files;
+    try {
+      files = readdirSync(pendingDir);
+    } catch {
+      return;
+    }
+    if (files.length === 0) return;
+    const sevenDaysAgo = Date.now() - 7 * 864e5;
+    const validFiles = [];
+    for (const file of files) {
+      const filePath = join2(pendingDir, file);
+      const stat = statSync(filePath);
+      if (stat.mtimeMs < sevenDaysAgo) {
+        unlinkSync(filePath);
+      } else {
+        validFiles.push(file);
       }
     }
-  } catch {
+    if (validFiles.length === 0) return;
+    const sessions = [];
+    for (const file of validFiles.slice(0, 10)) {
+      const filePath = join2(pendingDir, file);
+      const transcriptPath = readFileSync3(filePath, "utf-8").trim();
+      try {
+        const summary = parseTranscript(transcriptPath);
+        sessions.push({ sessionId: file, summary, file });
+      } catch {
+      }
+    }
+    if (sessions.length === 0) return;
+    const payload = {
+      sessions: sessions.map((s) => ({
+        sessionId: s.sessionId,
+        summary: {
+          inputTokens: s.summary.inputTokens,
+          outputTokens: s.summary.outputTokens,
+          totalTokens: s.summary.totalTokens,
+          models: s.summary.models,
+          turnCount: s.summary.turnCount,
+          duration: s.summary.duration
+        },
+        startedAt: s.summary.startedAt,
+        endedAt: s.summary.endedAt
+      }))
+    };
+    try {
+      const result = await reportUsage(config, payload);
+      if (result.ok) {
+        for (const s of sessions) {
+          try {
+            unlinkSync(join2(pendingDir, s.file));
+          } catch {
+          }
+        }
+      }
+    } catch {
+    }
+  } finally {
+    // Always release lock
+    try { unlinkSync(lockPath); } catch {}
   }
 }
 flush();
