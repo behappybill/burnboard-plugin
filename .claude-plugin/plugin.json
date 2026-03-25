@@ -1,7 +1,7 @@
 {
   "name": "burnboard",
   "description": "Track Claude Code token usage and compete on the global leaderboard",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": {
     "name": "BurnBoard"
   },
