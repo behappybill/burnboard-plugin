@@ -44,9 +44,25 @@ API 키를 입력하라는 안내가 나타납니다. [burnboard.io/settings](ht
 ## Features
 
 - **Automatic Tracking** — Zero-config after setup. Every Claude Code session is recorded
+- **Statusline HUD** — Real-time token usage, tier, and progress displayed in the terminal status bar
 - **Zero Overhead** — Stop hook is a pure shell script (~1ms). No impact on Claude Code response speed
 - **Offline Resilient** — Failed reports are queued locally and retried on next session
 - **Batch Reporting** — Multiple pending sessions are sent in a single API call
+
+## Statusline HUD
+
+After setup, your terminal status bar shows real-time token usage:
+
+```
+🔶 Ember  1.8M/5.0M ██░░░░░░░░ 19%  │  Session: 84.2K
+```
+
+- **Tier icon & name** — Color-coded to your current tier
+- **Monthly tokens / Next tier threshold** — Track your progress
+- **Progress bar** — Visual indicator to next tier
+- **Session tokens** — Current session usage
+
+The statusline updates automatically via Claude Code's Statusline API with a 5-second cache for performance.
 
 ## How It Works
 

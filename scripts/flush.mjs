@@ -124,6 +124,20 @@ async function flush() {
       } else {
         validFiles.push(file);
       }
+      // Update monthly summary for statusline HUD
+      const summaryPath = join2(dataDir2, "monthly-summary.json");
+      let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "" };
+      try { summary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
+      const currentMonth = new Date().toISOString().slice(0, 7);
+      if (summary.month !== currentMonth) {
+        summary = { month: currentMonth, totalTokens: 0, sessionsReported: 0, lastUpdated: "" };
+      }
+      for (const s of sessions) {
+        summary.totalTokens += s.summary.totalTokens;
+        summary.sessionsReported += 1;
+      }
+      summary.lastUpdated = new Date().toISOString();
+      try { writeFileSync(join2(dataDir2, "monthly-summary.json"), JSON.stringify(summary)); } catch {}
     }
     if (validFiles.length === 0) return;
     const sessions = [];
