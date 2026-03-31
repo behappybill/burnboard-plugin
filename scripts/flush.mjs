@@ -139,15 +139,18 @@ async function flush() {
     if (sessions.length === 0) return;
     // Update monthly summary for statusline HUD
     const summaryPath = join2(dataDir2, "monthly-summary.json");
-    let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "" };
+    let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
     try { summary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
     const currentMonth = new Date().toISOString().slice(0, 7);
     if (summary.month !== currentMonth) {
-      summary = { month: currentMonth, totalTokens: 0, sessionsReported: 0, lastUpdated: "" };
+      summary = { month: currentMonth, totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
     }
+    if (!Array.isArray(summary.countedSessions)) summary.countedSessions = [];
     for (const s of sessions) {
+      if (summary.countedSessions.includes(s.sessionId)) continue;
       summary.totalTokens += s.summary.totalTokens;
       summary.sessionsReported += 1;
+      summary.countedSessions.push(s.sessionId);
     }
     summary.lastUpdated = new Date().toISOString();
     try { writeFileSync(join2(dataDir2, "monthly-summary.json"), JSON.stringify(summary)); } catch {}
