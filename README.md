@@ -1,5 +1,7 @@
 # BurnBoard Plugin for Claude Code
 
+🇰🇷 [한국어](ko.md) &nbsp;|&nbsp; 🇯🇵 [日本語](jp.md)
+
 > Track your Claude Code token usage and compete on the global leaderboard.
 
 **[burnboard.io](https://burnboard.io)**
@@ -114,3 +116,7 @@ claude --plugin-dir ./
 ## License
 
 MIT
+
+---
+
+[![BurnBoard - Turn your Claude Code usage into a competitive sport. | Product Hunt](https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1193433&theme=dark)](https://www.producthunt.com/products/burnboard/reviews/new?utm_source=badge-product_review&utm_medium=badge&utm_source=badge-burnboard)
