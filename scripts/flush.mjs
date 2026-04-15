@@ -105,18 +105,27 @@ async function fetchAnthropicMonthlyUsage(apiKey) {
 }
 
 async function syncAnthropicUsage(config, summaryPath) {
+  // Check rate limit before making the network call
+  let rateCheckSummary = {};
+  try { rateCheckSummary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  // Reset rate limit if month changed
+  if (rateCheckSummary.month && rateCheckSummary.month !== currentMonth) rateCheckSummary = {};
+  if (rateCheckSummary.accountSyncedAt) {
+    if (Date.now() - new Date(rateCheckSummary.accountSyncedAt).getTime() < ANTHROPIC_SYNC_INTERVAL_MS) return;
+  }
+
+  const usage = await fetchAnthropicMonthlyUsage(config.anthropicApiKey);
+  if (!usage) return;
+
+  // Re-read summary AFTER the async API call — avoids overwriting concurrent
+  // session-flush updates to totalTokens / countedSessions that happened
+  // while we were waiting for the Anthropic response.
   let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
   try { summary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
-  const currentMonth = new Date().toISOString().slice(0, 7);
   if (summary.month !== currentMonth) {
     summary = { month: currentMonth, totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
   }
-  // Rate limit: sync at most once per 30 minutes
-  if (summary.accountSyncedAt) {
-    if (Date.now() - new Date(summary.accountSyncedAt).getTime() < ANTHROPIC_SYNC_INTERVAL_MS) return;
-  }
-  const usage = await fetchAnthropicMonthlyUsage(config.anthropicApiKey);
-  if (!usage) return;
   summary.accountTotal = usage.totalTokens;
   summary.accountInputTokens = usage.inputTokens;
   summary.accountOutputTokens = usage.outputTokens;
