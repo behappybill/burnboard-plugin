@@ -87,18 +87,28 @@ async function fetchAnthropicMonthlyUsage(apiKey) {
   const startDate = now.toISOString().slice(0, 7) + "-01";
   const endDate = now.toISOString().slice(0, 10);
   const url = `https://api.anthropic.com/v1/usage?start_date=${startDate}&end_date=${endDate}`;
-  const res = await fetch(url, {
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  let res;
+  try {
+    res = await fetch(url, {
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) return null;
   const data = await res.json();
   let inputTokens = 0;
   let outputTokens = 0;
   for (const entry of (data.data ?? [])) {
-    inputTokens += entry.input_tokens ?? 0;
+    inputTokens += (entry.input_tokens ?? 0)
+                 + (entry.cache_creation_input_tokens ?? 0)
+                 + (entry.cache_read_input_tokens ?? 0);
     outputTokens += entry.output_tokens ?? 0;
   }
   return { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens };
