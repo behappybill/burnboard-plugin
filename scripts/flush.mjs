@@ -78,72 +78,6 @@ async function reportUsage(config, payload) {
   return { ok: res.ok, status: res.status };
 }
 
-// ── Anthropic account-level usage sync ──────────────────────────────────────
-
-const ANTHROPIC_SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
-
-async function fetchAnthropicMonthlyUsage(apiKey) {
-  const now = new Date();
-  const startDate = now.toISOString().slice(0, 7) + "-01";
-  const endDate = now.toISOString().slice(0, 10);
-  const url = `https://api.anthropic.com/v1/usage?start_date=${startDate}&end_date=${endDate}`;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10_000);
-  let res;
-  try {
-    res = await fetch(url, {
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timer);
-  }
-  if (!res.ok) return null;
-  const data = await res.json();
-  let inputTokens = 0;
-  let outputTokens = 0;
-  for (const entry of (data.data ?? [])) {
-    inputTokens += (entry.input_tokens ?? 0)
-                 + (entry.cache_creation_input_tokens ?? 0)
-                 + (entry.cache_read_input_tokens ?? 0);
-    outputTokens += entry.output_tokens ?? 0;
-  }
-  return { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens };
-}
-
-async function syncAnthropicUsage(config, summaryPath) {
-  // Check rate limit before making the network call
-  let rateCheckSummary = {};
-  try { rateCheckSummary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  // Reset rate limit if month changed
-  if (rateCheckSummary.month && rateCheckSummary.month !== currentMonth) rateCheckSummary = {};
-  if (rateCheckSummary.accountSyncedAt) {
-    if (Date.now() - new Date(rateCheckSummary.accountSyncedAt).getTime() < ANTHROPIC_SYNC_INTERVAL_MS) return;
-  }
-
-  const usage = await fetchAnthropicMonthlyUsage(config.anthropicApiKey);
-  if (!usage) return;
-
-  // Re-read summary AFTER the async API call — avoids overwriting concurrent
-  // session-flush updates to totalTokens / countedSessions that happened
-  // while we were waiting for the Anthropic response.
-  let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
-  try { summary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
-  if (summary.month !== currentMonth) {
-    summary = { month: currentMonth, totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
-  }
-  summary.accountTotal = usage.totalTokens;
-  summary.accountInputTokens = usage.inputTokens;
-  summary.accountOutputTokens = usage.outputTokens;
-  summary.accountSyncedAt = new Date().toISOString();
-  summary.lastUpdated = summary.accountSyncedAt;
-  try { writeFileSync(summaryPath, JSON.stringify(summary)); } catch {}
-}
-
 // src/flush-entry.ts
 async function flush() {
   const config = readConfig();
@@ -152,13 +86,7 @@ async function flush() {
   }
   const dataDir2 = process.env.CLAUDE_PLUGIN_DATA ?? join2(process.env.HOME ?? "", ".burnboard");
   const pendingDir = join2(dataDir2, "pending");
-  const summaryPath = join2(dataDir2, "monthly-summary.json");
   const lockPath = join2(dataDir2, "flush.lock");
-
-  // Sync account-level usage from Anthropic API (runs on every session end)
-  if (config.anthropicApiKey) {
-    await syncAnthropicUsage(config, summaryPath).catch(() => {});
-  }
 
   // Prevent concurrent flush processes
   if (existsSync(lockPath)) {
@@ -210,6 +138,7 @@ async function flush() {
     }
     if (sessions.length === 0) return;
     // Update monthly summary for statusline HUD
+    const summaryPath = join2(dataDir2, "monthly-summary.json");
     let summary = { month: "", totalTokens: 0, sessionsReported: 0, lastUpdated: "", countedSessions: [] };
     try { summary = JSON.parse(readFileSync3(summaryPath, "utf-8")); } catch {}
     const currentMonth = new Date().toISOString().slice(0, 7);

@@ -152,7 +152,7 @@ function readStdin() {
 
 // ── Render ───────────────────────────────────────────────────────────────────
 
-function render(monthlyTokens, sessionTokens, isAccountLevel = false) {
+function render(monthlyTokens, sessionTokens) {
   const tier = getTier(monthlyTokens);
   const nextTier = getNextTier(monthlyTokens);
   const bar = progressBar(monthlyTokens, tier.min, nextTier.max);
@@ -162,10 +162,8 @@ function render(monthlyTokens, sessionTokens, isAccountLevel = false) {
   const tokenLabel = `${formatTokens(monthlyTokens)}/${formatTokens(nextTier.max)}`;
   const barLabel = `${tier.color}${bar}${RESET} ${pct}%`;
   const sessionLabel = `${DIM}Session:${RESET} ${formatTokens(sessionTokens)}`;
-  // ⊙ indicates account-level data sourced from Anthropic API (all interfaces included)
-  const sourceLabel = isAccountLevel ? ` ${DIM}⊙${RESET}` : "";
 
-  return `${tierLabel}  ${tokenLabel} ${barLabel}${sourceLabel}  │  ${sessionLabel}`;
+  return `${tierLabel}  ${tokenLabel} ${barLabel}  │  ${sessionLabel}`;
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -190,7 +188,7 @@ async function main() {
     cache.transcriptPath === transcriptPath &&
     (now - cache.updatedAt) < 5000
   ) {
-    console.log(render(cache.monthlyTokens, cache.sessionTokens, cache.isAccountLevel ?? false));
+    console.log(render(cache.monthlyTokens, cache.sessionTokens));
     return;
   }
 
@@ -214,12 +212,8 @@ async function main() {
 
   // Read monthly summary
   const summary = readMonthlySummary();
-  const isAccountLevel = !!(summary?.accountTotal);
-  // When account-level data is available (synced from Anthropic API), it already includes
-  // all interfaces (terminal, web, desktop app) — don't add session tokens on top.
-  // When using transcript-only data, add current session tokens (not yet flushed).
-  const monthlyBase = summary?.accountTotal ?? summary?.totalTokens ?? 0;
-  const monthlyTokens = isAccountLevel ? monthlyBase : monthlyBase + sessionTokens;
+  const monthlyBase = summary?.totalTokens ?? 0;
+  const monthlyTokens = monthlyBase + sessionTokens;
 
   // Update cache
   writeCache({
@@ -229,10 +223,9 @@ async function main() {
     sessionTokens,
     transcriptSize,
     transcriptPath,
-    isAccountLevel,
   });
 
-  console.log(render(monthlyTokens, sessionTokens, isAccountLevel));
+  console.log(render(monthlyTokens, sessionTokens));
 }
 
 main().catch(() => {});
