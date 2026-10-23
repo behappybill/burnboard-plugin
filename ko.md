@@ -1,5 +1,16 @@
 # BurnBoard Plugin for Claude Code
 
+> [!WARNING]
+> **BurnBoard 서비스가 종료되었습니다 (2026년 10월).** burnboard.io 서비스는 중단되었고 이 저장소는 보관(archive) 처리되었습니다. 플러그인은 더 이상 사용량을 전송하지 않습니다.
+>
+> 제거 방법:
+> ```bash
+> claude plugin uninstall burnboard@burnboard-marketplace
+> claude plugin marketplace remove burnboard-marketplace
+> rm -rf ~/.burnboard ~/.claude/plugins/data/burnboard-*
+> ```
+> 그동안 BurnBoard를 사용해 주셔서 감사합니다.
+
 > Claude Code의 토큰 사용량을 추적하고 글로벌 리더보드에서 경쟁하세요.
 
 **[burnboard.io](https://burnboard.io)**
