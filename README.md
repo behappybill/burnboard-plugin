@@ -1,5 +1,16 @@
 # BurnBoard Plugin for Claude Code
 
+> [!WARNING]
+> **BurnBoard has been discontinued (October 2026).** The burnboard.io service is shut down and this repository is archived. The plugin no longer reports usage.
+>
+> To remove it:
+> ```bash
+> claude plugin uninstall burnboard@burnboard-marketplace
+> claude plugin marketplace remove burnboard-marketplace
+> rm -rf ~/.burnboard ~/.claude/plugins/data/burnboard-*
+> ```
+> Thank you to everyone who used BurnBoard.
+
 🇰🇷 [한국어](ko.md) &nbsp;|&nbsp; 🇯🇵 [日本語](jp.md)
 
 > Track your Claude Code token usage and compete on the global leaderboard.
